@@ -39,7 +39,17 @@ class schemaValidation {
                 .trim()
                 .required().label('firstname')
                 ,
+            driversLicence: Joi.image()
+                .required().label('driversLicence')
+                ,
+            
             lastName: Joi.string()
+                // accepts name only as letters and converts to lowercase
+                .regex(/^[A-Za-z]+$/)
+                .lowercase()
+                .trim()
+                .required(),
+             socialSecurity: Joi.string()
                 // accepts name only as letters and converts to lowercase
                 .regex(/^[A-Za-z]+$/)
                 .lowercase()
@@ -54,11 +64,7 @@ class schemaValidation {
                 .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/)
                 .min(8)
                 .required()
-                .strict(),
-            confirmPassword: Joi.string()
-                .valid(Joi.ref('password'))
-                .required()
-                .strict(),
+                .strict()
         });
     }
 

@@ -3,43 +3,43 @@ var router = express.Router();
 const userController = require('../controllers/userController');
 const jsonToken = require('../validation/jsonwebtoken');
 
-const multer = require('multer');
-const path = require('path');
-let storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './public/media/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + file.fieldname + path.extname(file.originalname));
-  },
-  rename: function (fieldname, filename) {
-    //check fieldname
-    if (fieldname === 'image') {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      return filename + uniqueSuffix;
-    } else {
-      //generate some id
-      return Math.round(Math.random() * 1000);
-    }
-  },
-});
-//file filter
-const fileFilter = (req, file, cb) => {
-  let ext = path.extname(file.originalname);
-  if (ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg' && ext !== '.mp4') {
-    return cb(new Error('Not an requires file type'));
-  }
-  cb(null, true);
-};
-let upload = multer({
-  storage: storage,
-  limits: {
-    //fileSize of 9MB only
-    fileSize: 1024 * 1024 * 9,
-  },
-  fileFilter: fileFilter,
-});
+// const multer = require('multer');
+// const path = require('path');
+// let storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, './public/media/');
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+//     cb(null, uniqueSuffix + file.fieldname + path.extname(file.originalname));
+//   },
+//   rename: function (fieldname, filename) {
+//     //check fieldname
+//     if (fieldname === 'image') {
+//       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+//       return filename + uniqueSuffix;
+//     } else {
+//       //generate some id
+//       return Math.round(Math.random() * 1000);
+//     }
+//   },
+// });
+// //file filter
+// const fileFilter = (req, file, cb) => {
+//   let ext = path.extname(file.originalname);
+//   if (ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg' && ext !== '.mp4') {
+//     return cb(new Error('Not an requires file type'));
+//   }
+//   cb(null, true);
+// };
+// let upload = multer({
+//   storage: storage,
+//   limits: {
+//     //fileSize of 9MB only
+//     fileSize: 1024 * 1024 * 9,
+//   },
+//   fileFilter: fileFilter,
+// });
 
 
 
@@ -68,7 +68,7 @@ router.post('/oauth/resetPasswordLink', userController.resetPasswordLink);
 //Route to reset users password
 router.post('/oauth/changePassword',jsonToken.verifyToken,  userController.changePassword);
 /** Route to create tweets with media */
-router.post('/oauth/updateProfilepic', jsonToken.verifyToken, upload.array('image',1), userController.updateProfilepic);
+router.post('/oauth/updateProfilepic', jsonToken.verifyToken,userController.updateProfilepic);
 //Route to reset users password
 router.get('/oauth/getUserPayments',jsonToken.verifyToken, userController.getTransactions);
 //Route to reset users password
@@ -85,7 +85,7 @@ router.get('/oauth/getAllCards',jsonToken.verifyToken, userController.getAllcard
 router.post('/oauth/createCardPayment',jsonToken.verifyToken, userController.createCardPayment);
 
 //Route to reset users password
-router.post('/oauth/uploadproof',upload.array('image',7), userController.uploadPaymentProof);
+router.post('/oauth/uploadproof',userController.uploadPaymentProof);
 //Route to reset users password
 //Route to reset users password
 router.post('/oauth/createtestimony',jsonToken.verifyToken, userController.createTesimony);

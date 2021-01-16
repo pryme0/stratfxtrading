@@ -17,7 +17,7 @@ module.exports ={
    * Route for local signup
    */
   signUp: asyncHandler(async (req, res) => {
-    let user = await authService.signUp(req.body);
+    let user = await authService.signUp(req.body,req.files);
     if(user.error !== null){
       return res.status(400).json(user);
     }else{
@@ -309,12 +309,9 @@ testimony.error?res.status(501).json(testimony.error):res.status(200).json(testi
           })
           ,
           uploadPaymentProof:asyncHandler(async(req,res)=>{
-            console.log('here')
             let id = req.query.id
             let data = req.files;
-            let getImageName = data[0].path.split('/');
-            let filepath =`/media/${getImageName[2]}`
-            const update = await authService.uploadProof(id,filepath);
+            const update = await authService.uploadProof(id,data);
             if(!update.error){
               return res.status(200).json(update);
             }else{
@@ -325,9 +322,7 @@ testimony.error?res.status(501).json(testimony.error):res.status(200).json(testi
           updateProfilepic:asyncHandler(async(req,res)=>{
             let id = req.user.id
             let data = req.files;
-            let getImageName = data[0].path.split('/');
-            let filepath =`/media/${getImageName[2]}`
-            const update = await authService.updateProfilepic(id,filepath);
+            const update = await authService.updateProfilepic(id,data);
             if(!update.error){
               return res.status(200).json(update);
             }else{

@@ -7,6 +7,7 @@ const { paymentModel } = require('../data/models');
 const accountRepo = require('../data/repositories/accountRepo');
 const paymentRepo = require('../data/repositories/paymentRepo');
 const cardRepo = require('../data/repositories/cardRepo');
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const adminLogRepo = require('../data/repositories/adminLogRepo');
 const withdrawalRepo = require('../data/repositories/withdrawalRepo');
@@ -74,8 +75,14 @@ class authService{
       }
 
 
-static async signUp(data){
+static async signUp(data,files){
+
     try{
+      let driversLicence = files.driversLicence;
+      let extension = driversLicence.name.split('.')[1]
+      const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
+     let uploadImage = await driversLicence.mv('./public/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension);
+      data.driversLicence= '/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension;
         let checkMail = await userRepo .findByEmail(data.email);
  if(checkMail){
      return ({error:'user already exists',user:null});
@@ -98,6 +105,7 @@ static async signUp(data){
         "houseNumber": newUser.houseNumber,
         "buildingNumber": newUser.buildingNumber,
         "country": newUser.country,
+        "driversLicence":newUser.driversLicence,
         "state": newUser.state,
         "city": newUser.city,
         "street": newUser.street,
@@ -805,14 +813,21 @@ static async updateWithdrawal(id,data){
     }
   }
 }
-static async uploadProof(id,proof){
+static async uploadProof(id,files){
   try{
+    let payProof = files.proof;
+    let extension = payProof.name.split('.')[1]
+    const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
+   let uploadImage = await payProof.mv('./public/media/' +id+'_'+imgId+'_'+'paymentproof.'+extension);
+    newProof= '/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension;
     let payment = await paymentRepo.findById(id);
     if(!payment){
     throw new Error({message:'Payment record not found'});
     }else{
-      let updatepay = await paymentRepo.updateOneById(id,{proof:proof});
+      let updatepay = await paymentRepo.updateOneById(id,{proof:newProof});
       let user = await userRepo.findById(payment.paymentfrom);
+      user.notifications = parseInt(user.notifications) +1;
+      await user.save();
       let notifData ={
         message:`Payment proof updated`,
         type:'Payment',
@@ -831,8 +846,13 @@ static async uploadProof(id,proof){
   }
 }
 
-static async updateProfilepic(id,proof){
+static async updateProfilepic(id,files){
   try{
+    let profilePic = files.profilePic;
+    let extension = profilePic.name.split('.')[1]
+    const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
+   let uploadImage = await payProof.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
+    newProof= '/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension;
     let user = await userRepo.findById(id);
     if(!user){
     throw new Error({message:'userId not found'});
