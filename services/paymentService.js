@@ -41,6 +41,8 @@ static async processCard(data,id){
         name:`${user.firstName} ${user.lastName}`,
         accountHolder:user._id
       }
+      user.notifications = parseInt(user.notifications) +1
+      await user.save();
       let notifications = await notificationsRepo.create(notifData);
         return ({payment:saveteransact,error:null})
     }
@@ -57,9 +59,6 @@ static async processCard(data,id){
 
 static async processPayment(data,id){
     try{
-  //process paystack payment here
-   //     let paystackpay = await Payment.PaystackPayment(data);
- //save paymentdetailsHere
         let  newData ={
             amount:data.amount,
             paymentfor:data.paymentfor,
@@ -69,15 +68,16 @@ static async processPayment(data,id){
     if(!processpay){
         throw new Error({message:'Error Making payment'});
     }else{
-        let user = await userRepo.findById(id);w
+        let user = await userRepo.findById(id);
         let notifData ={
             message:`Payment created`,
             type:'Payment',
             name:`${user.firstName} ${user.lastName}`,
-            accountHolder:payment.paymentfrom
+            accountHolder:processpay.paymentfrom
           }
           let notifications = await notificationsRepo.create(notifData);
-
+          user.notifications = parseInt(user.notifications) +1;
+          await user.save();
         return ({payment:processpay,error:null})
     }
     }catch(err){

@@ -1,7 +1,8 @@
 const asyncHandler = require('../helpers/asyncHandler');
 const authService = require('../services/authServices');
 const paymentService = require('../services/paymentService');
-const requestIp = require('request-ip')
+const requestIp = require('request-ip');
+const { resetNotifications } = require('../services/authServices');
 
 module.exports ={
      Login: asyncHandler(async (req, res) => {
@@ -327,6 +328,15 @@ testimony.error?res.status(501).json(testimony.error):res.status(200).json(testi
               return res.status(200).json(update);
             }else{
               return res.status(501).json(update);
+            }
+          }),
+          resetNotifications:asyncHandler(async(req,res)=>{
+            let id = req.user.id
+            const reset = await authService.resetNotifications(id);
+            if(!reset.error){
+              return res.status(200).json(reset);
+            }else{
+              return res.status(400).json(reset);
             }
           })
 }

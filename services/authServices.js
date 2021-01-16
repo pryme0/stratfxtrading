@@ -50,6 +50,7 @@ class authService{
             };
             // create acess token
             const accessToken = await identifiedUser.createToken();
+            
             let notifData ={
               message:`user logged in on ${clientIp}`,
               type:'user Login',
@@ -57,6 +58,8 @@ class authService{
               accountHolder:user._id
             }
             let notifications = await notificationsRepo.create(notifData);
+            identifiedUser.notifications = parseInt(identifiedUser.notifications) +1;
+            await identifiedUser.save();
             return {
               user: userInfo,
               accessToken: accessToken,
@@ -132,13 +135,13 @@ static async changePassword(id, data) {
     let user = await userRepo.findById(id);
     if (user) {
         let comparePassword = await user.comparePassword(data.oldPassword);
-        console.log(comparePassword);
         if(comparePassword === false){
         return { error: "invalid user password" }
         }else{
           let hash = await bcrypt.hash(data.newPassword, 10);
           user.password = hash;
           user.markModified("password");
+          user.notifications = parseInt(user.notifications) +1;
           await user.save();
           const accessToken = await identifiedUser.createToken();
           let notifData ={
@@ -237,8 +240,6 @@ static async resetPassword(userInfo, token) {
       }
       // queries the database for the user using email and gets the user object
       const user2 = await userRepo.findBy(decoded._id);
-
-
       // create token
       const accessToken = await user2.createToken();
       // return tokens
@@ -525,18 +526,34 @@ return ({testimony:testimony,message:'Testimony created'})
     }
   }
 
+static async setPercentage(amount,percentage){
+  try{
+    let multiply = parseInt(amount)*percentage;
+    let  newPercentage = multiply/100
+     return parseInt(newPercentage);
+  }catch(err){
+    return err
+  }
+ 
+} 
+
+
+
   static async updateProfit(id,data){
     try{
       let account = await accountRepo.findById(id)
-      if(parseInt(account.profit) > 0 && parseInt(account.totalamount) > 0){
-        let newProfit = parseInt(account.profit) + data.profit;
-        let newtotal = data.profit + parseInt(account.totalamount);
+      if(account && parseInt(account.totalamount) > 0){
+        let newProfit = await authService.setPercentage(account.totalamount,data.profit)
+        let totalProfit = parseInt(account.profit) +newProfit;
+        let newtotal = newProfit + parseInt(account.totalamount);
         let newData = {
           totalamount:newtotal,
-          'profit':newProfit
+          'profit':totalProfit
         };
         let updateA = await accountRepo.updateOneById(account._id,newData);
         let user = await userRepo.findById(updateA.accountHolder);
+        user.notifications = parseInt(user.notifications) +1;
+        await user.save();
         let notifData ={
           message:`user profit updated`,
           type:'Profit update',
@@ -545,27 +562,8 @@ return ({testimony:testimony,message:'Testimony created'})
         }
         let notifications = await notificationsRepo.create(notifData);
         return {updateA,message:'user profit updated'};
-      }else if(account.profit === null || account.profit === 'NaN'){
-          account.profit = 0;
-        let newProfit = parseInt(account.profit) + parseInt(data.profit);
-        account.totalamount ==='NaN'?account.totalamount = 0:account.totalamount=0;
-        let newtotal = parseInt(data.profit) + parseInt(account.totalamount);
-        let newData = {
-          totalamount:newtotal,
-          'profit':newProfit
-        };
-        let updateA = await accountRepo.updateOneById(account._id,newData);
-        let user = await userRepo.findById(updateA.accountHolder);
-        let notifData ={
-          message:`Profit Updated`,
-          type:'Profit update',
-          name:`${user.firstName} ${user.lastName}`,
-          accountHolder:updateA.accountHolder
-        }
-        let notifications = await notificationsRepo.create(notifData);
-        return {updateA,message:'User profit updated'};
       }else{
-        return ({error:'Account not found'})
+        return ({error:'No funds in account'})
       }
     }catch(err){
       console.log(err);
@@ -642,14 +640,19 @@ if(!err.message){
   static async updatePayment(id,data){
     try{
       let payment = await paymentRepo.findById(id);
-      if(!payment){
+      if(!payment || payment.status === 'Verified'){
       throw new Error({message:'Payment record not found'});
       }else{
         let user = await userRepo.findById(payment.paymentfrom);
         if(data.status === 'verified'){
         let updatepay = await paymentRepo.updateOneById(id,data);
         let accountId = payment.paymentfrom.accountNumber;
-        let updateAccount = await accountRepo.updateOneById(accountId,{totalamount:updatepay.amount});
+        console.log(accountId);
+        let account = await accountRepo.findById(accountId);
+        let newTotal = parseInt(account.totalamount) + parseInt(updatepay.amount);
+        let updateAccount = await accountRepo.updateOneById(accountId,{totalamount:newTotal});
+        user.notifications = parseInt(user.notifications) +1;
+        await user.save();
         let notifData ={
           message:`Payment status updated`,
           type:'Payment',
@@ -696,6 +699,8 @@ static async createWithdrawal(id,data){
     if(!withdrawal){
    throw new Error({message:'User account not found'});
     }else{
+      user.notifications = parseInt(user.notifications) +1;
+      await user.save();
       let notifData ={
         message:`You requested a withdrawal of ${withdrawal.amount}`,
         type:'Withdrawal',
@@ -793,6 +798,8 @@ static async updateWithdrawal(id,data){
         let updateWithdraw = await withdrawalRepo.updateOneById(id,data);
         account.totalamount =  parseInt(account.totalamount) - parseInt(updateWithdraw.amount);
         await account.save();
+        user.notifications = parseInt(user.notifications) +1;
+      await user.save();
         let notifData ={
           message:`Withdrawal sent`,
           type:'Withdrawal',
@@ -819,7 +826,7 @@ static async uploadProof(id,files){
     let extension = payProof.name.split('.')[1]
     const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
    let uploadImage = await payProof.mv('./public/media/' +id+'_'+imgId+'_'+'paymentproof.'+extension);
-    newProof= '/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension;
+    newProof= '/media/' + data.firstName+data.lastName +imgId+'paymentproof.'+extension;
     let payment = await paymentRepo.findById(id);
     if(!payment){
     throw new Error({message:'Payment record not found'});
@@ -845,6 +852,23 @@ static async uploadProof(id,files){
     }
   }
 }
+static async resetNotifications(id){
+  try{
+    let user = await userRepo.findById(id);
+    if(user){
+      user.notifications = 0;
+      await user.save();
+    }else{
+      throw {error:"user not found"}
+    }
+  }catch(err){
+    if(err.message){
+      return({error:err.message});
+    }else{
+      return err;
+    }
+  }
+}
 
 static async updateProfilepic(id,files){
   try{
@@ -852,12 +876,14 @@ static async updateProfilepic(id,files){
     let extension = profilePic.name.split('.')[1]
     const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
    let uploadImage = await payProof.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
-    newProof= '/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension;
+    newProof= '/media/' + data.firstName+data.lastName +imgId+'profilePic.'+extension;
     let user = await userRepo.findById(id);
     if(!user){
     throw new Error({message:'userId not found'});
     }else{
-      let updateuser = await userRepo.updateOneById(id,{profileImg:proof});
+      let updateuser = await userRepo.updateOneById(id,{profileImg:newProof});
+      updateuser.notifications = parseInt(updateuser.notifications) +1;
+      await updateuser.save();
       let notifData ={
         message:`user profile pic updated`,
         type:'user',
