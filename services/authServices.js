@@ -124,8 +124,12 @@ static async signUp(data,files){
     return userCreated;
  }
     }catch(err){
-        console.log(err)
-        return({err:err,user:null});
+        if(err.message){
+          return({error:err.message});
+        }else{
+          return({err:err,user:null});
+        }
+       
     }
 }
 
