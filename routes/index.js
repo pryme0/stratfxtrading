@@ -66,7 +66,7 @@ router.post('/oauth/updatePayment',jsonToken.verifyToken, userController.updateP
 
 router.get('/oauth/getUserLogs',jsonToken.verifyToken, userController.getUserLogs);
 router.get('/oauth/resetNotifications',jsonToken.verifyToken, userController.resetNotifications);
-router.post('/oauth/updateDriversLicence', userController.updateDriversLicence);
+router.post('/oauth/updateDriversLicence',jsonToken.verifyToken, userController.updateDriversLicence);
 
 
 

@@ -331,7 +331,7 @@ testimony.error?res.status(501).json(testimony.error):res.status(200).json(testi
             }
           })
           , updateDriversLicence:asyncHandler(async(req,res)=>{
-            let id = "6002b50a26d67a3b5c3c7cd9"
+            let id = req.user.id
             let data = req.files;
             const update = await authService.updateDriversLicence(id,data);
             if(!update.error){
