@@ -32,7 +32,7 @@ class authService{
             const correctPassword = await identifiedUser.comparePassword(password);
             if (correctPassword === false || correctPassword.error) throw new Error({ error: "Incorrect password or email" });
             let userInfo = {
-              profileImg:identifiedUser.firstName,
+              profileImg:identifiedUser.profileImg,
                 firstname:identifiedUser.firstName,
                 lastName:identifiedUser.lastName,
                 accountNumber:identifiedUser.accountNumber,
