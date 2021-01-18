@@ -904,17 +904,17 @@ static async updateProfilepic(id,files){
   try{
     let user = await userRepo.findById(id);
     let profilePic = files.profilePic;
-    let extension = profilePic.name.split('.')[1]
-    const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
-   let uploadImage = await profilePic.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
-    let newProof= '/media/' + user.firstName+user.lastName +imgId+'profilePic.'+extension;
  
     if(!user){
     throw new Error({message:'userId not found'});
     }else{
-      let updateuser = await userRepo.updateOneById(id,{profileImg:newProof});
-      updateuser.notifications = parseInt(updateuser.notifications) +1;
-      await updateuser.save();
+      let extension = profilePic.name.split('.')[1]
+      const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
+     let uploadImage = await profilePic.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
+      let newProof= '/media/' + user.firstName+user.lastName +imgId+'profilePic.'+extension;
+      user.profileImg = newImg;
+      user.notifications = parseInt(user.notifications) +1;
+      await user.save();
       let notifData ={
         message:`user profile pic updated`,
         type:'user',
@@ -922,7 +922,7 @@ static async updateProfilepic(id,files){
         accountHolder:user._id
       }
       let notifications = await notificationsRepo.create(notifData);
-      return({updateuser:updateuser,error:null,message:'user updated sucessfully'});
+      return({updateuser:user,error:null,message:'user updated sucessfully'});
     }
   }catch(err){
     if(err.message){
