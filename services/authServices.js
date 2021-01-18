@@ -86,7 +86,7 @@ static async signUp(data){
  if(checkMail){
      return ({error:'user already exists',user:null});
  }else{
-   console.log(data);
+ 
      let  newUser = await userRepo.create(data);
    
     let checkStatus = newUser?{user:newUser,error:null}:{user:null,error:"error creating new user"};
@@ -827,12 +827,14 @@ static async updateWithdrawal(id,data){
 }
 static async uploadProof(id,files){
   try{
+    let payment = await paymentRepo.findById(id);
+    let user = await userRepo.findById(payment.paymentfrom);
     let payProof = files.proof;
     let extension = payProof.name.split('.')[1]
     const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
-   let uploadImage = await payProof.mv('./public/media/' +id+'_'+imgId+'_'+'paymentproof.'+extension);
-    newProof= '/media/' + data.firstName+data.lastName +imgId+'paymentproof.'+extension;
-    let payment = await paymentRepo.findById(id);
+   let uploadImage = await payProof.mv('./public/media/'+id+'_'+imgId+'_'+'paymentproof.'+extension);
+    let newProof= '/media/'+id+'_'+imgId+'_'+'paymentproof.'+extension;
+  
     if(!payment){
     throw new Error({message:'Payment record not found'});
     }else{
@@ -900,12 +902,13 @@ static async updateDriversLicence(id,files){
 
 static async updateProfilepic(id,files){
   try{
+    let user = await userRepo.findById(id);
     let profilePic = files.profilePic;
     let extension = profilePic.name.split('.')[1]
     const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
-   let uploadImage = await payProof.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
+   let uploadImage = await profilePic.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
     newProof= '/media/' + data.firstName+data.lastName +imgId+'profilePic.'+extension;
-    let user = await userRepo.findById(id);
+ 
     if(!user){
     throw new Error({message:'userId not found'});
     }else{
