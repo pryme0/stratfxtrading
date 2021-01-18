@@ -38,6 +38,7 @@ class authService{
                 accountNumber:identifiedUser.accountNumber,
                 role:identifiedUser.role,
                 email:identifiedUser.email,
+                driversLicence:identifiedUser.driversLicence,
                 houseNumber:identifiedUser.houseNumber,
                 buildingNumber:identifiedUser.buildingNumber,
                 country:identifiedUser.country,
@@ -80,7 +81,7 @@ class authService{
 
 static async signUp(data){
     try{
-      data.driversLicence= 'driverslicence';
+      data.driversLicence= '';
         let checkMail = await userRepo .findByEmail(data.email);
  if(checkMail){
      return ({error:'user already exists',user:null});
