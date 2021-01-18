@@ -86,7 +86,9 @@ static async signUp(data){
  if(checkMail){
      return ({error:'user already exists',user:null});
  }else{
+   console.log(data);
      let  newUser = await userRepo.create(data);
+   
     let checkStatus = newUser?{user:newUser,error:null}:{user:null,error:"error creating new user"};
    let passwordToken = await newUser.createToken();
    let bankAccount = await accountRepo.create({accountHolder:newUser._id});
@@ -120,6 +122,7 @@ static async signUp(data){
     return userCreated;
  }
     }catch(err){
+      console.log(err)
         if(err.message){
           return({error:err.message});
         }else{

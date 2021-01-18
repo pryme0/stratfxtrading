@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     accountNumber: { type: String, default: null },
     socialSecurity: { type: String,  required: [true, 'social security number is required'] },
     notifications: { type: String, default: 0 },
-    driversLicence: { type: String,  required: [true, 'drivers licence is required']},
+    driversLicence: { type: String,  default:""},
     buildingNumber: { type: String, default: null },
     password: { type: String, default: null },
     country: { type: String, default: null },
