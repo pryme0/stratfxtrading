@@ -39,10 +39,6 @@ class schemaValidation {
                 .trim()
                 .required().label('firstname')
                 ,
-            driversLicence: Joi.image()
-                .required().label('driversLicence')
-                ,
-            
             lastName: Joi.string()
                 // accepts name only as letters and converts to lowercase
                 .regex(/^[A-Za-z]+$/)
