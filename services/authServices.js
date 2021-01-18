@@ -78,14 +78,9 @@ class authService{
       }
 
 
-static async signUp(data,files){
-
+static async signUp(data){
     try{
-      let driversLicence = files.driversLicence;
-      let extension = driversLicence.name.split('.')[1]
-      const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
-     let uploadImage = await driversLicence.mv('./public/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension);
-      data.driversLicence= '/media/' + data.firstName+data.lastName +imgId+'_driverslicence.'+extension;
+      data.driversLicence= 'driverslicence';
         let checkMail = await userRepo .findByEmail(data.email);
  if(checkMail){
      return ({error:'user already exists',user:null});
@@ -864,6 +859,29 @@ static async resetNotifications(id){
     if(user){
       user.notifications = 0;
       await user.save();
+    }else{
+      throw {error:"user not found"}
+    }
+  }catch(err){
+    if(err.message){
+      return({error:err.message});
+    }else{
+      return err;
+    }
+  }
+}
+
+static async updateDriversLicence(id,files){
+  try{
+    let user = await userRepo.findById(id);
+    if(user){
+        let driversLicence = files.driversLicence;
+      let extension = driversLicence.name.split('.')[1]
+      const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
+     let uploadImage = await driversLicence.mv('./public/media/' + user.firstName+user.lastName +imgId+'_driverslicence.'+extension);
+      user.driversLicence= '/media/' + user.firstName+user.lastName +imgId+'_driverslicence.'+extension;
+      await user.save();
+      return({user:user,message:"driversLicence Updated successfully"})
     }else{
       throw {error:"user not found"}
     }

@@ -329,6 +329,16 @@ testimony.error?res.status(501).json(testimony.error):res.status(200).json(testi
             }else{
               return res.status(501).json(update);
             }
+          })
+          , updateDriversLicence:asyncHandler(async(req,res)=>{
+            let id = "6002b50a26d67a3b5c3c7cd9"
+            let data = req.files;
+            const update = await authService.updateDriversLicence(id,data);
+            if(!update.error){
+              return res.status(200).json(update);
+            }else{
+              return res.status(501).json(update);
+            }
           }),
           resetNotifications:asyncHandler(async(req,res)=>{
             let id = req.user.id
