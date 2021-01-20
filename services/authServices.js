@@ -865,6 +865,7 @@ static async resetNotifications(id){
     if(user){
       user.notifications = 0;
       await user.save();
+      return ({user:user,message:"user notifications reseted"});
     }else{
       throw {error:"user not found"}
     }
