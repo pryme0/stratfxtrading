@@ -901,6 +901,7 @@ static async updateDriversLicence(id,files){
 }
 
 static async updateProfilepic(id,files){
+  console.log(files)
   try{
     let user = await userRepo.findById(id);
     let profilePic = files.profilePic;
