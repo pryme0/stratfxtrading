@@ -912,6 +912,7 @@ static async updateProfilepic(id,files){
       let extension = profilePic.name.split('.')[1]
       const imgId =`${user.lastName}${crypto.randomBytes(10).toString('hex')}`;
      let uploadImage = await profilePic.mv('./public/media/' +id+'_'+imgId+'_'+'profilepiic.'+extension);
+     console.log(uploadImage)
       let newImg= '/media/' + user.firstName+user.lastName +imgId+'profilePic.'+extension;
       user.profileImg = newImg;
       user.notifications = parseInt(user.notifications) +1;
