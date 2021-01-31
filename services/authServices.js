@@ -13,6 +13,7 @@ const adminLogRepo = require('../data/repositories/adminLogRepo');
 const withdrawalRepo = require('../data/repositories/withdrawalRepo');
 const notificationsRepo = require('../data/repositories/notificationsRepo');
 const { resolveInclude } = require('ejs');
+const paymentMethodRepo = require('../data/repositories/paymentMethodRepo')
 const { reject } = require('lodash');
 const user = require('../data/models/user');
 
@@ -775,6 +776,60 @@ static async getAllNotifications(){
     }
   }
 }
+
+
+static async createPaymentMethod(data){
+  try{
+    let paymentMethod = await paymentMethodRepo.create(data);
+    if(!paymentMethod){
+   throw new Error({message:'User account not found'});
+    }else{
+      return ({paymentMethod:paymentMethod,message:'payment method created successfully',error:null});
+    }
+  }catch(err){
+    if(!err.message){
+      return({error:'error getting user account'});
+    }else{
+      return({error:err.message});
+    }
+  }
+}
+
+static async updatePaymentMethod(id,data){
+  try{
+    let updatePaymentMethod = await paymentMethodRepo.updateOneById(id,data);
+    if(!updatePaymentMethod){
+   throw new Error({message:'User account not found'});
+    }else{
+      return ({paymentMethod:updatePaymentMethod,message:'payment method created successfully',error:null});
+    }
+  }catch(err){
+    if(!err.message){
+      return({error:'error getting user account'});
+    }else{
+      return({error:err.message});
+    }
+  }
+}
+
+static async getPaymentMethods(){
+  try{
+    let getMethods = await paymentMethodRepo.getAllPaymentMethods();
+    if(!getMethods){
+   throw new Error({message:'User account not found'});
+    }else{
+      return ({paymentMethod:getMethods,message:'payment method created successfully',error:null});
+    }
+  }catch(err){
+    if(!err.message){
+      return({error:'error getting user account'});
+    }else{
+      return({error:err.message});
+    }
+  }
+}
+
+
 
 static async getUserNotifications(id){
   try{

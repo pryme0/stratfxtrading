@@ -234,6 +234,36 @@ testimony.error?res.status(501).json(testimony.error):res.status(200).json(testi
             }else{
               return res.status(501).json(update);
             }
+          })
+          ,
+          createPaymentMethod:asyncHandler(async(req,res)=>{
+            data = req.body;
+            const update = await authService.createPaymentMethod(data);
+            if(!update.error){
+              return res.status(200).json(update);
+            }else{
+              return res.status(501).json(update);
+            }
+          })
+          ,
+          updatePaymentMethod:asyncHandler(async(req,res)=>{
+            let id = req.query.id;
+            data = req.body;
+            const update = await authService.updatePaymentMethod(id,data);
+            if(!update.error){
+              return res.status(200).json(update);
+            }else{
+              return res.status(501).json(update);
+            }
+          })
+          ,
+          getPaymentMethods:asyncHandler(async(req,res)=>{
+            const update = await authService.getPaymentMethods();
+            if(!update.error){
+              return res.status(200).json(update);
+            }else{
+              return res.status(501).json(update);
+            }
           }),
           getUserAccount:asyncHandler(async(req,res)=>{
             let id = req.user.id

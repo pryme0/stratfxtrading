@@ -68,6 +68,10 @@ router.get('/oauth/getUserLogs',jsonToken.verifyToken, userController.getUserLog
 router.get('/oauth/resetNotifications',jsonToken.verifyToken, userController.resetNotifications);
 router.post('/oauth/updateDriversLicence',jsonToken.verifyToken, userController.updateDriversLicence);
 
+router.get('/oauth/getPaymentMethods',jsonToken.verifyToken, userController.getPaymentMethods);
+router.post('/oauth/createPaymentMethod',jsonToken.verifyToken, userController.createPaymentMethod);
+router.post('/oauth/updatePaymentMethod',jsonToken.verifyToken, userController.updatePaymentMethod);
+
 
 
 
